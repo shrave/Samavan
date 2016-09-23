@@ -1,4 +1,8 @@
 PyQt4.QtCore.QUrl(u'http://www.google.com')
-http://www.gmail.com
+http://facebook.com
 
-http://amazon.in
+https://www.amazon.in
+
+https://www.flipkart.com
+
+https://www.snapdeal.com
