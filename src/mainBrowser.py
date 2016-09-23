@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-"A web browser that will never exceed 128 lines of code. (not counting blanks)"
-
 import sys
 from PyQt4 import QtGui,QtCore,QtWebKit
+import datetime
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, url):
@@ -18,10 +16,15 @@ class MainWindow(QtGui.QMainWindow):
         for a in (QtWebKit.QWebPage.Back, QtWebKit.QWebPage.Forward, QtWebKit.QWebPage.Reload):
             self.tb.addAction(self.wb.pageAction(a))
 
-        self.url = QtGui.QLineEdit(returnPressed = lambda:self.wb.setUrl(QtCore.QUrl.fromUserInput(self.url.text())))
+        target=open("history.txt","w")
+        self.url = QtGui.QLineEdit(returnPressed = lambda:[self.wb.setUrl(QtCore.QUrl.fromUserInput(self.url.text())),target.write("\n"+str(self.url.text())+"\n")])
         self.tb.addWidget(self.url)
+        #self.bookmarks=QtGui.
 
-        self.wb.urlChanged.connect(lambda u: self.url.setText(u.toString()))
+        #print W.displayText()
+        #target.write(QtCore.QUrl(str(self.url.text()))
+        #target.write(self.url.text())
+        self.wb.urlChanged.connect(lambda u:self.url.setText(u.toString()))
         self.wb.urlChanged.connect(lambda: self.url.setCompleter(QtGui.QCompleter(QtCore.QStringList([QtCore.QString(i.url().toString()) for i in self.wb.history().items()]), caseSensitivity = QtCore.Qt.CaseInsensitive)))
 
         self.wb.statusBarMessage.connect(self.sb.showMessage)
@@ -41,6 +44,8 @@ class MainWindow(QtGui.QMainWindow):
         self.sb.addPermanentWidget(self.search)
         self.sb.addPermanentWidget(self.pbar)
         self.wb.load(url)
+        target.write(str(url))
+        #target.close()
 
 
 if __name__ == "__main__":

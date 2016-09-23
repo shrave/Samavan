@@ -1,0 +1,4 @@
+PyQt4.QtCore.QUrl(u'http://www.google.com')
+http://www.gmail.com
+
+http://amazon.in
