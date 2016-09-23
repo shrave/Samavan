@@ -17,9 +17,9 @@ class MainWindow(QtGui.QMainWindow):
             self.tb.addAction(self.wb.pageAction(a))
 
         target=open("history.txt","w")
-        self.url = QtGui.QLineEdit(returnPressed = lambda:[self.wb.setUrl(QtCore.QUrl.fromUserInput(self.url.text())),target.write("\n"+str(self.url.text())+ " "+str(datetime.datetime.now())+ " " + "\n")])
+        self.url = QtGui.QLineEdit(returnPressed = lambda:[self.wb.setUrl(QtCore.QUrl.fromUserInput(self.url.text())),target.write("\n"+str(self.url.text())+"\n")])
         self.tb.addWidget(self.url)
-        #self.bookmarks= QtGui.
+        #self.bookmarks=QtGui.
 
         #print W.displayText()
         #target.write(QtCore.QUrl(str(self.url.text()))
