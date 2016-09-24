@@ -1,6 +1,0 @@
-PyQt4.QtCore.QUrl(u'http://www.google.com')
-http://www.gmail.com 2016-09-23 16:18:45.830936 
-
-http://amazon.in 2016-09-23 16:19:04.091331 
-
-http://www.flipkart.com 2016-09-23 16:20:02.290253 
