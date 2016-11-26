@@ -1,25 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2010 Harrison Erd
-#
-# This software is provided 'as-is', without any express or implied
-# warranty. In no event will the authors be held liable for any damages
-# arising from the use of this software.
-#
-# Permission is granted to anyone to use this software for any purpose,
-# including commercial applications, and to alter it and redistribute it
-# freely, subject to the following restrictions:
-#
-#    1. The origin of this software must not be misrepresented; you must not
-#    claim that you wrote the original software. If you use this software
-#    in a product, an acknowledgment in the product documentation would be
-#    appreciated but is not required.
-#
-#    2. Altered source versions must be plainly marked as such, and must not be
-#    misrepresented as being the original software.
-#
-#    3. This notice may not be removed or altered from any source
-#    distribution.
 import readline
 import sys, urllib
 from pygments import highlight
@@ -28,9 +8,13 @@ from pygments.formatters import HtmlFormatter
 from PyQt4 import QtCore, QtGui, QtWebKit
 import resources
 import os
+import subprocess
 import pyttsx
 from bs4 import BeautifulSoup
-
+from subprocess import call
+import threading
+import speech_recognition as sr
+from multiprocessing import Process
 
 
 
@@ -175,7 +159,7 @@ class browser(QtGui.QMainWindow):
         icon = QtGui.QIcon("icons/forward.png")
         self.action_forward = QtGui.QAction(icon, ("Forward"), self)
 
-        icon = QtGui.QIcon("icons/go-home.png")
+        icon = QtGui.QIcon("icons/home.png")
         self.action_home = QtGui.QAction(icon, ("Home"), self)
 
         icon = QtGui.QIcon("icons/go.png")
@@ -186,7 +170,11 @@ class browser(QtGui.QMainWindow):
         self.button_other.setPopupMode(2)
         self.button_other.setIcon(icon)
 
+        icon = QtGui.QIcon("icons/mic.png")
+        self.action_mic = QtGui.QAction(icon, ("Speech to text"), self)
+
         self.action_goHome = QtGui.QAction("Home", self)
+        self.action_usemic = QtGui.QAction("Speech To Text", self)
         self.action_newTab = QtGui.QAction("New tab", self)
         self.action_delTab = QtGui.QAction("Close current tab", self)
         self.action_vBooks = QtGui.QAction("View bookmarks", self)
@@ -238,12 +226,14 @@ class browser(QtGui.QMainWindow):
         self.button_other.setMenu(self.other_menu)
 
         self.lineEdit = QtGui.QLineEdit(self)
+        
 
         self.toolbar.addAction(self.action_back)
         self.toolbar.addAction(self.action_forward)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.action_home)
         self.toolbar.addWidget(self.lineEdit)
+        self.toolbar.addAction(self.action_mic)
         self.toolbar.addAction(self.action_go)
         self.toolbar.addWidget(self.button_other)
 
@@ -269,6 +259,8 @@ class browser(QtGui.QMainWindow):
             self.goHome)
         self.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'),
             self.lineEdited)
+        self.connect(self.action_mic, QtCore.SIGNAL('triggered()'),
+            self.speechToText)
         self.connect(self.action_go, QtCore.SIGNAL('triggered()'),
             self.lineEdited)
         self.connect(self.tabWidget, QtCore.SIGNAL('currentChanged(int)'),
@@ -412,11 +404,26 @@ class browser(QtGui.QMainWindow):
             lines = (line.strip() for line in text.splitlines())
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
             text = '\n'.join(chunk for chunk in chunks if chunk)
-            engine=pyttsx.init()
+            '''engine=pyttsx.init()
             engine.setProperty('rate', 120)
             engine.say(text)
-            engine.runAndWait()
+            engine.runAndWait()'''
+            k=text.split()
+            l=[]
+            for i in k:
+                if i[0]!='<' or i[0]!='>' or i[0]!="{" or i[0]!='}' or i[0]!=".":
+                    l.append(i)
+                
+
+
+            print l
+
             
+            #subprocess.call("./ii.sh %s"%text, shell=True)
+            for i in l:
+                subprocess.call("./ii.sh %s"%str(i), shell=True)
+    
+
     def highContrast(self):
         os.system("xcalib -invert -alter")
 
@@ -428,6 +435,21 @@ class browser(QtGui.QMainWindow):
 
     def goHome(self):
         self.currentBrowser().setUrl(QtCore.QUrl("http://www.google.com"))
+
+    def speechToText(self):
+        r = sr.Recognizer()
+        response = QtGui.QMessageBox.question(self, "Speech to Text", "Do you want to activate Speech to Text?",
+            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.Yes)
+        if response ==  QtGui.QMessageBox.Yes:
+            with sr.Microphone() as source:
+                print("Say something!")
+                audio = r.listen(source)
+            try:
+                self.lineEdit.setText(str(r.recognize_google(audio)))
+            except sr.UnknownValueError:
+                print("Google Speech Recognition could not understand audio")
+            except sr.RequestError as e:
+                print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
     def offerDownload(self):
         url = str(self.lineEdit.text())
